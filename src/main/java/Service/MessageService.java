@@ -40,4 +40,33 @@ public class MessageService {
         return messageDAO.getAllMessages();
     }
 
+    /**
+     * 
+     * @param message
+     * @return
+     */
+    public Message getMessagebyId(int message_id){
+        if (messageDAO.getMessagebyId(message_id) != null){
+            return messageDAO.getMessagebyId(message_id);
+        }
+        else{
+            return null;
+        }
+    }
+
+    /**
+     * 
+     * @param message
+     * @return
+     */
+    public Message deleteMessageById(int message_id){
+        if (messageDAO.getMessagebyId(message_id) != null){
+            return messageDAO.getMessagebyId(message_id);
+        }
+        else{
+            return null;
+        }
+    }
+
+
 }

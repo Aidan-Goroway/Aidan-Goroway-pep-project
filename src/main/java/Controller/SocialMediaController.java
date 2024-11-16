@@ -40,10 +40,10 @@ public class SocialMediaController {
 
         // app.get("example-endpoint", this::exampleHandler);
 
-        app.get("/messages", this::getAllMessagesHandler);
-        app.post("/messages", this::postNewMessageHandler);
-
-        // app.start(8080);
+        app.post("/messages", this::postNewMessageHandler); //#3
+        app.get("/messages", this::getAllMessagesHandler); //#4
+        app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5
+        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler); //#6
 
         return app;
     }
@@ -72,10 +72,13 @@ public class SocialMediaController {
      * As a user, I should be able to submit a new post on the endpoint POST localhost:8080/messages.
      * The request body will contain a JSON representation of a message, which should be persisted to the database, 
      *      but will not contain a message_id.
-        - The creation of the message will be successful if and only if the message_text is not blank, is not over 255 characters,
-            and posted_by refers to a real, existing user. If successful, the response body should contain a JSON of the message,
-            including its message_id. The response status should be 200, which is the default. The new message should be persisted
-            to the database.
+        - The creation of the message will be successful if and only if: 
+            the message_text is not blank,
+            is not over 255 characters,
+            and posted_by refers to a real, existing user. 
+        If successful, the response body should contain a JSON of the message,
+        including its message_id. The response status should be 200, which is the default. The new message should be persisted
+        to the database.
         - If the creation of the message is not successful, the response status should be 400. (Client error)
      */
     private void postNewMessageHandler(Context ctx) throws JsonProcessingException{
@@ -97,16 +100,48 @@ public class SocialMediaController {
 
     /**
      * HANDLER #4: Retreieve all messages
+     * 
+     * The response body should contain a JSON representation of a list containing all messages retrieved from the database. 
+     * It is expected for the list to simply be empty if there are no messages. The response status should always be 200, 
+     * which is the default.
      */
     private void getAllMessagesHandler(Context ctx){
-        // if (){
-
-        // }
-        // else{
-            
-        // }
         List<Message> messages = messageService.getAllMessages();
         ctx.json(messages);
+    }
+
+    /**
+     * HANDLER #5: Get message by id
+     * 
+     * The response body should contain a JSON representation of the message identified by the message_id. 
+     * It is expected for the response body to simply be empty if there is no such message. 
+     * The response status should always be 200, which is the default.
+     */
+    private void getMessageByIdHandler(Context ctx) throws JsonProcessingException{
+
+        ObjectMapper mapper = new ObjectMapper();
+        Message message = mapper.readValue(ctx.body(), Message.class);
+        Message addedMessage = messageService.addMessage(message);
+
+        ctx.json(messageService.getMessagebyId(addedMessage.getMessage_id()));
+    }
+
+    /**
+     * - The deletion of an existing message should remove an existing message from the database. 
+     *  If the message existed, the response body should contain the now-deleted message. 
+     *  The response status should be 200, which is the default.
+     * 
+        If the message did not exist, the response status should be 200, but the response body should be empty. 
+        This is because the DELETE verb is intended to be idempotent, ie, 
+        multiple calls to the DELETE endpoint should respond with the same type of response.
+     */
+    private void deleteMessageByIdHandler(Context ctx) throws JsonProcessingException{
+
+        ObjectMapper mapper = new ObjectMapper();
+        Message message = mapper.readValue(ctx.body(), Message.class);
+        Message addedMessage = messageService.addMessage(message);
+
+        ctx.json(messageService.deleteMessageById(addedMessage.getMessage_id()));
     }
 
 }
