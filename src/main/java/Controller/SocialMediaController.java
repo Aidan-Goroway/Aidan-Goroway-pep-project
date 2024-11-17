@@ -44,6 +44,8 @@ public class SocialMediaController {
         app.get("/messages", this::getAllMessagesHandler); //#4
         app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5
         app.delete("/messages/{message_id}", this::deleteMessageByIdHandler); //#6
+        app.put("/messages/{message_id}", this::updateMessageByIdHandler); //#7
+        app.get("/accounts/{account_id}/messages", this::getAllMessagesByUserHandler); //#8
 
         return app;
     }
@@ -142,6 +144,52 @@ public class SocialMediaController {
         Message addedMessage = messageService.addMessage(message);
 
         ctx.json(messageService.deleteMessageById(addedMessage.getMessage_id()));
+    }
+
+    /**
+     * - The update of a message should be successful if and only if: 
+     *      the message id already exists 
+     *      and the new message_text is not blank
+     *      and is not over 255 characters. 
+     *  If the update is successful, the response body should contain the full
+     *  updated message (including message_id, posted_by, message_text, and time_posted_epoch), and the response status should
+     *  be 200, which is the default. The message existing on the database should have the updated message_text.
+        - If the update of the message is not successful for any reason, the response status should be 400. (Client error)
+
+     * @param ctx
+     * @throws JsonProcessingException
+     */
+    private void updateMessageByIdHandler(Context ctx) throws JsonProcessingException{
+
+        ObjectMapper mapper = new ObjectMapper();
+        Message message = mapper.readValue(ctx.body(), Message.class);
+
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        // String message_text = ctx.pathParam("message_text");
+
+        Message updatedMessage = messageService.updateMessageById(message_id, message);
+
+        if (
+            // updatedMessage.getMessage_id() != null,
+            message.getMessage_id() == updatedMessage.getMessage_id() &&
+            updatedMessage.getMessage_text() != "" &&
+            updatedMessage.getMessage_text().length() < 256
+        ){
+            ctx.json(mapper.writeValueAsString(updatedMessage));
+        }
+        else{
+            ctx.status(400);
+        }
+
+    }
+
+    /**
+     * The response body should contain a JSON representation of a list containing all messages posted by a particular user,
+     * which is retrieved from the database. It is expected for the list to simply be empty if there are no messages. 
+     * The response status should always be 200, which is the default.
+     */
+    private void getAllMessagesByUserHandler(Context ctx) throws JsonProcessingException{
+        ctx.json(MessageService.get);
     }
 
 }

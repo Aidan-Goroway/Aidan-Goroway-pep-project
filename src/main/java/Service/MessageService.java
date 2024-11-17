@@ -68,5 +68,19 @@ public class MessageService {
         }
     }
 
+    public Message updateMessageById(int message_id, Message message){
+        if (messageDAO.getMessagebyId(message_id) != null){
+            messageDAO.updateMessageById(message_id, message);
+            return message;
+        }
+        else{
+            return null;
+        }
+    }
+
+    public List<Message> getAllMessagesByUserId(int account_id){
+        return messageDAO.getAllMessagesByUserId(account_id);
+    }
+
 
 }

@@ -121,4 +121,38 @@ public class MessageDAO {
         return null;
     }
 
+    public void updateMessageById(int id, Message message){
+        Connection connection = ConnectionUtil.getConnection();
+
+        try {
+            String sql = "UPDATE message SET message_text = ? WHERE message_id = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setInt(1, id);
+            preparedStatement.setString(2, message.getMessage_text());
+
+            // ResultSet rs = preparedStatement.executeQuery();
+
+        }
+        catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        // return null;
+    }
+
+    public List<Message> getAllMessagesByUserId(int account_id){
+        Connection connection = ConnectionUtil.getConnection();
+        List<Message> messages = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM message WHERE posted_by = ?"; //Account.account_id
+
+
+        }
+        catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return messages;
+    }
+
 }
