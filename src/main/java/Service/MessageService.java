@@ -5,6 +5,8 @@ import DAO.MessageDAO;
 
 import java.util.List;
 
+import javax.print.DocFlavor.STRING;
+
 public class MessageService {
     MessageDAO messageDAO;
 
@@ -78,8 +80,8 @@ public class MessageService {
         }
     }
 
-    public List<Message> getAllMessagesByUserId(int account_id){
-        return messageDAO.getAllMessagesByUserId(account_id);
+    public List<Message> getAllMessagesByUserId(String account_id){
+        return messageDAO.getAllMessagesByUserId(Integer.parseInt(account_id));
     }
 
 

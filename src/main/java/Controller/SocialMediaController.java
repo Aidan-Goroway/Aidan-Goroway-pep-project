@@ -40,6 +40,7 @@ public class SocialMediaController {
 
         // app.get("example-endpoint", this::exampleHandler);
 
+        // app.
         app.post("/messages", this::postNewMessageHandler); //#3
         app.get("/messages", this::getAllMessagesHandler); //#4
         app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5
@@ -189,7 +190,7 @@ public class SocialMediaController {
      * The response status should always be 200, which is the default.
      */
     private void getAllMessagesByUserHandler(Context ctx) throws JsonProcessingException{
-        ctx.json(MessageService.get);
+        ctx.json(messageService.getAllMessagesByUserId(ctx.pathParam("account_id")));
     }
 
 }
