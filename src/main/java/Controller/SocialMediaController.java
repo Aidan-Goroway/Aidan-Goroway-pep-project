@@ -40,7 +40,7 @@ public class SocialMediaController {
 
         // app.get("example-endpoint", this::exampleHandler);
 
-        // app.
+        app.post("/register", this::postNewUserHandler); //#1
         app.post("/messages", this::postNewMessageHandler); //#3
         app.get("/messages", this::getAllMessagesHandler); //#4
         app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5
@@ -59,14 +59,38 @@ public class SocialMediaController {
         context.json("sample text");
     }
 
+    
     /**
-     * 
+     * As a user, I should be able to create a new Account on the endpoint POST localhost:8080/register. 
+     * The body will contain a representation of a JSON Account, but will not contain an account_id.
+
+        - The registration will be successful if and only if
+            the username is not blank, 
+            the password is at least 4 characters long, and
+            an Account with that username does not already exist. 
+        If all these conditions are met, the response body should contain a JSON of the Account, including its account_id.
+        The response status should be 200 OK, which is the default. The new account should be persisted to the database.
+        - If the registration is not successful, the response status should be 400. (Client error)
+
      * @param ctx
      * @throws JsonProcessingException
      */
-    private void postUserRegistrationHandler(Context ctx) throws JsonProcessingException{
+    private void postNewUserHandler(Context ctx) throws JsonProcessingException{
+
         ObjectMapper mapper = new ObjectMapper();
-        // finish later after DAO classes?
+        Account account = mapper.readValue(ctx.body(), Account.class);
+        Account postedAccount = accountService.addAccount(account); //fix later
+        
+        if ( postedAccount.getUsername() != "" &&      // username not blank 
+             postedAccount.getPassword().length() >= 4       // password 4+ chars long
+            //  account.getUsername() != postedAccount.getUsername()       // account w/username not already exists (ISSUE HERE)
+            ){    
+            ctx.json(mapper.writeValueAsString(postedAccount)); //fix later?
+        }
+        else{
+            ctx.status(400);
+        }
+
     }
 
     /**
