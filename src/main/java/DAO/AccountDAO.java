@@ -17,7 +17,6 @@ The ConnectionUtil provided uses a singleton, and using a try-with-resources wil
 
 public class AccountDAO { // assume table named account exists
     
-
     public List<Account> getAllAccounts(){
         Connection connection = ConnectionUtil.getConnection();
         List<Account> accounts = new ArrayList<>();
@@ -37,6 +36,33 @@ public class AccountDAO { // assume table named account exists
             System.out.println(e.getMessage());
         }
         return accounts;
+    }
+
+    public Account getValidAccount(String username, String password){
+        Connection connection = ConnectionUtil.getConnection();
+
+        try {
+            String sql = "SELECT * FROM account WHERE username = ? AND password = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+
+            preparedStatement.executeQuery();
+            ResultSet pkeyResultSet = preparedStatement.getGeneratedKeys();
+
+            if(pkeyResultSet.next()){
+                // System.out.println("TEST");
+                Account account = new Account();
+                int generated_account_id = (int) pkeyResultSet.getLong(1); //check this?
+                return new Account(generated_account_id, account.getUsername(), account.getPassword());
+            }
+
+        }
+        catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
     public Account insertAccount(Account account){

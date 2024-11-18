@@ -41,6 +41,7 @@ public class SocialMediaController {
         // app.get("example-endpoint", this::exampleHandler);
 
         app.post("/register", this::postNewUserHandler); //#1
+        app.post("/login", this::postNewLoginHandler); //#2
         app.post("/messages", this::postNewMessageHandler); //#3
         app.get("/messages", this::getAllMessagesHandler); //#4
         app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5
@@ -60,7 +61,7 @@ public class SocialMediaController {
     }
 
     
-    /**
+    /** HANDLER #1
      * As a user, I should be able to create a new Account on the endpoint POST localhost:8080/register. 
      * The body will contain a representation of a JSON Account, but will not contain an account_id.
 
@@ -89,6 +90,34 @@ public class SocialMediaController {
         }
         else{
             ctx.status(400);
+        }
+
+    }
+
+    /** HANDLER #2
+     * As a user, I should be able to verify my login on the endpoint POST localhost:8080/login. 
+     * The request body will contain a JSON representation of an Account, not containing an account_id.
+     * In the future, this action may generate a Session token to allow the user to securely use the site.
+     * We will not worry about this for now.
+
+    - The login will be successful if and only if: 
+            the username and password provided in the request body JSON match a real account existing on the database.
+    If successful, the response body should contain a JSON of the account in the response body,
+    including its account_id. The response status should be 200 OK, which is the default.
+    - If the login is not successful, the response status should be 401. (Unauthorized)
+     */
+    private void postNewLoginHandler(Context ctx) throws JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+        Account account = mapper.readValue(ctx.body(), Account.class);
+        Account postedLogin = accountService.getValidAccount(account); //fix later
+
+        if ( postedLogin != null        // username matches an existing account
+                    // pass also matches
+            ){    
+            ctx.json(mapper.writeValueAsString(postedLogin)); //fix later
+        }
+        else{
+            ctx.status(400); // all code sends here
         }
 
     }
