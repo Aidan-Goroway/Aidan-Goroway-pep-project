@@ -38,26 +38,22 @@ public class AccountDAO { // assume table named account exists
         return accounts;
     }
 
-    public Account getValidAccount(String username, String password){
+    public Account getValidAccount(String username){
         Connection connection = ConnectionUtil.getConnection();
 
         try {
-            String sql = "SELECT * FROM account WHERE username = ? AND password = ?";
+            String sql = "SELECT * FROM account WHERE username = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
             preparedStatement.setString(1, username);
-            preparedStatement.setString(2, password);
-
-            preparedStatement.executeQuery();
-            ResultSet pkeyResultSet = preparedStatement.getGeneratedKeys();
+            ResultSet pkeyResultSet = preparedStatement.executeQuery();
 
             if(pkeyResultSet.next()){
-                // System.out.println("TEST");
-                Account account = new Account();
-                int generated_account_id = (int) pkeyResultSet.getLong(1); //check this?
-                return new Account(generated_account_id, account.getUsername(), account.getPassword());
+                Account account = new Account(
+                    pkeyResultSet.getInt("account_id"), 
+                    pkeyResultSet.getString("username"),
+                    pkeyResultSet.getString("password"));
+                return account;
             }
-
         }
         catch (SQLException e){
             System.out.println(e.getMessage());
@@ -69,7 +65,7 @@ public class AccountDAO { // assume table named account exists
         Connection connection = ConnectionUtil.getConnection();
 
         try {
-            String sql = "INSERT INTO account (username, password) VALUES (?,?)"; //does not need account_id, thats gen'd later
+            String sql = "INSERT INTO account (username, password) VALUES (?,?)"; //does not need account_id, those are gen'd later
             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setString(1, account.getUsername());
@@ -79,16 +75,13 @@ public class AccountDAO { // assume table named account exists
             ResultSet pkeyResultSet = preparedStatement.getGeneratedKeys();
 
             if(pkeyResultSet.next()){
-                int generated_account_id = (int) pkeyResultSet.getLong(1); //check this?
+                int generated_account_id = (int) pkeyResultSet.getLong(1);
                 return new Account(generated_account_id, account.getUsername(), account.getPassword());
             }
-
         }
         catch(SQLException e){
             System.out.println(e.getMessage());
         }
         return null;
-
     }
-
 }

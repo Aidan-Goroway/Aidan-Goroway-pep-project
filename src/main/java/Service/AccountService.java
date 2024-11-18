@@ -26,16 +26,21 @@ public class AccountService {
     }
 
     /**
-     * TODO
-     * @param message
-     * @return
+     * Adds an account.
+     * @param account An account to be added.
+     * @return Returns an account to be inserted, or null in the case of an sql error.
      */
     public Account addAccount(Account account){
         return accountDAO.insertAccount(account);
     }
 
-    public Account getValidAccount(Account account){
-        return accountDAO.getValidAccount(account.getUsername(), account.getPassword());
+    /**
+     * Looks for a valid account when loging in or registering, by searching the username.
+     * @param username Account's username, which is a String.
+     * @return Returns an Account, or null on failcases.
+     */
+    public Account getValidAccount(String username){
+        return accountDAO.getValidAccount(username);
     }
 
 }

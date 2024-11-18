@@ -40,14 +40,14 @@ public class SocialMediaController {
 
         // app.get("example-endpoint", this::exampleHandler);
 
-        app.post("/register", this::postNewUserHandler); //#1
-        app.post("/login", this::postNewLoginHandler); //#2
+        app.post("/register", this::postNewUserHandler); //#1                               DONE!
+        app.post("/login", this::postNewLoginHandler); //#2                                 DONE!
         app.post("/messages", this::postNewMessageHandler); //#3
         app.get("/messages", this::getAllMessagesHandler); //#4
         app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5
         app.delete("/messages/{message_id}", this::deleteMessageByIdHandler); //#6
         app.put("/messages/{message_id}", this::updateMessageByIdHandler); //#7
-        app.get("/accounts/{account_id}/messages", this::getAllMessagesByUserHandler); //#8
+        app.get("/accounts/{account_id}/messages", this::getAllMessagesByUserHandler); //#8 DONE!
 
         return app;
     }
@@ -56,37 +56,37 @@ public class SocialMediaController {
      * This is an example handler for an example endpoint.
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      */
-    private void exampleHandler(Context context) {
-        context.json("sample text");
-    }
+    // private void exampleHandler(Context context) {
+    //     context.json("sample text");
+    // }
 
     
     /** HANDLER #1
-     * As a user, I should be able to create a new Account on the endpoint POST localhost:8080/register. 
-     * The body will contain a representation of a JSON Account, but will not contain an account_id.
+    * As a user, I should be able to create a new Account on the endpoint POST localhost:8080/register. 
+    * The body will contain a representation of a JSON Account, but will not contain an account_id.
 
-        - The registration will be successful if and only if
-            the username is not blank, 
-            the password is at least 4 characters long, and
-            an Account with that username does not already exist. 
-        If all these conditions are met, the response body should contain a JSON of the Account, including its account_id.
-        The response status should be 200 OK, which is the default. The new account should be persisted to the database.
-        - If the registration is not successful, the response status should be 400. (Client error)
+    * The registration will be successful if and only if
+            - the username is not blank, 
+            - the password is at least 4 characters long, and
+            - an Account with that username does not already exist. 
+    * If all these conditions are met, the response body should contain a JSON of the Account, including its account_id.
 
-     * @param ctx
+    * The response status should be 200 OK, which is the default. The new account should be persisted to the database.
+    * If the registration is not successful, the response status should be 400. (Client error)
+
+     * @param ctx Responce and request handler
      * @throws JsonProcessingException
      */
     private void postNewUserHandler(Context ctx) throws JsonProcessingException{
 
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(ctx.body(), Account.class);
-        Account postedAccount = accountService.addAccount(account); //fix later
         
-        if ( postedAccount.getUsername() != "" &&      // username not blank 
-             postedAccount.getPassword().length() >= 4       // password 4+ chars long
-            //  account.getUsername() != postedAccount.getUsername()       // account w/username not already exists (ISSUE HERE)
-            ){    
-            ctx.json(mapper.writeValueAsString(postedAccount)); //fix later?
+        if (account.getUsername() != "" &&              // username not blank 
+            account.getPassword().length() >= 4 &&      // password 4+ chars long
+            accountService.getValidAccount(account.getUsername()) == null){ //username not preexistent
+                Account postedAccount = accountService.addAccount(account);
+                ctx.json(mapper.writeValueAsString(postedAccount));
         }
         else{
             ctx.status(400);
@@ -95,29 +95,30 @@ public class SocialMediaController {
     }
 
     /** HANDLER #2
-     * As a user, I should be able to verify my login on the endpoint POST localhost:8080/login. 
-     * The request body will contain a JSON representation of an Account, not containing an account_id.
-     * In the future, this action may generate a Session token to allow the user to securely use the site.
-     * We will not worry about this for now.
+    * As a user, I should be able to verify my login on the endpoint POST localhost:8080/login. 
+    * The request body will contain a JSON representation of an Account, not containing an account_id.
+    * In the future, this action may generate a Session token to allow the user to securely use the site.
+    * We will not worry about this for now.
 
-    - The login will be successful if and only if: 
-            the username and password provided in the request body JSON match a real account existing on the database.
-    If successful, the response body should contain a JSON of the account in the response body,
-    including its account_id. The response status should be 200 OK, which is the default.
-    - If the login is not successful, the response status should be 401. (Unauthorized)
+    * The login will be successful if and only if: 
+        - the username and password provided in the request body JSON match a real account existing on the database.
+    * If successful, the response body should contain a JSON of the account in the response body, including its account_id.
+    
+    * The response status should be 200 OK, which is the default.
+    * If the login is not successful, the response status should be 401. (Unauthorized)
      */
     private void postNewLoginHandler(Context ctx) throws JsonProcessingException{
+
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(ctx.body(), Account.class);
-        Account postedLogin = accountService.getValidAccount(account); //fix later
+        Account postedLogin = accountService.getValidAccount(account.getUsername());
 
-        if ( postedLogin != null        // username matches an existing account
-                    // pass also matches
-            ){    
-            ctx.json(mapper.writeValueAsString(postedLogin)); //fix later
+        if (postedLogin != null &&  // username matches an existing account
+            postedLogin.getPassword().equals(account.getPassword())){   // pass also matches  
+                ctx.json(mapper.writeValueAsString(postedLogin));
         }
         else{
-            ctx.status(400); // all code sends here
+            ctx.status(401);
         }
 
     }
