@@ -42,7 +42,7 @@ public class SocialMediaController {
 
         app.post("/register", this::postNewUserHandler); //#1                               DONE!
         app.post("/login", this::postNewLoginHandler); //#2                                 DONE!
-        app.post("/messages", this::postNewMessageHandler); //#3
+        app.post("/messages", this::postNewMessageHandler); //#3                            DONE!
         app.get("/messages", this::getAllMessagesHandler); //#4
         app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5
         app.delete("/messages/{message_id}", this::deleteMessageByIdHandler); //#6
@@ -74,9 +74,9 @@ public class SocialMediaController {
     * The response status should be 200 OK, which is the default. The new account should be persisted to the database.
     * If the registration is not successful, the response status should be 400. (Client error)
 
-     * @param ctx Responce and request handler
-     * @throws JsonProcessingException
-     */
+    * @param ctx Responce and request handler
+    * @throws JsonProcessingException
+    */
     private void postNewUserHandler(Context ctx) throws JsonProcessingException{
 
         ObjectMapper mapper = new ObjectMapper();
@@ -91,7 +91,6 @@ public class SocialMediaController {
         else{
             ctx.status(400);
         }
-
     }
 
     /** HANDLER #2
@@ -106,7 +105,7 @@ public class SocialMediaController {
     
     * The response status should be 200 OK, which is the default.
     * If the login is not successful, the response status should be 401. (Unauthorized)
-     */
+    */
     private void postNewLoginHandler(Context ctx) throws JsonProcessingException{
 
         ObjectMapper mapper = new ObjectMapper();
@@ -120,39 +119,37 @@ public class SocialMediaController {
         else{
             ctx.status(401);
         }
-
     }
 
     /**
-     * HANDLER #3: Create new message
-     * 
-     * As a user, I should be able to submit a new post on the endpoint POST localhost:8080/messages.
-     * The request body will contain a JSON representation of a message, which should be persisted to the database, 
-     *      but will not contain a message_id.
-        - The creation of the message will be successful if and only if: 
-            the message_text is not blank,
-            is not over 255 characters,
-            and posted_by refers to a real, existing user. 
-        If successful, the response body should contain a JSON of the message,
-        including its message_id. The response status should be 200, which is the default. The new message should be persisted
-        to the database.
-        - If the creation of the message is not successful, the response status should be 400. (Client error)
-     */
+    * HANDLER #3: Create new message
+    * 
+    * As a user, I should be able to submit a new post on the endpoint POST localhost:8080/messages.
+    * The request body will contain a JSON representation of a message, which should be persisted to the database, 
+    * but will not contain a message_id.
+    * The creation of the message will be successful if and only if: 
+        - the message_text is not blank,
+        - is not over 255 characters,
+        - and posted_by refers to a real, existing user. 
+    * If successful, the response body should contain a JSON of the message, including its message_id. 
+    
+    * The response status should be 200, which is the default. The new message should be persisted to the database.
+    * If the creation of the message is not successful, the response status should be 400. (Client error)
+    */
     private void postNewMessageHandler(Context ctx) throws JsonProcessingException{
+
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
-        Message addedMessage = messageService.addMessage(message);
-            // System.out.println("MESSAGE LENGTH: " + addedMessage.getMessage_text().length());
-        if (addedMessage.getMessage_text() != "" && 
-            addedMessage.getMessage_text().length() < 256
-            // && addedMessage.getPosted_by()){ //fix later
-            ){    
-            ctx.json(mapper.writeValueAsString(addedMessage));
+
+        if (!message.getMessage_text().equals("") &&   // messege not blank
+            message.getMessage_text().length() < 256            // message less than 256 long
+            && !(accountService.getValidAccount(message.getPosted_by()) == null)){  // message from a real user
+                Message addedMessage = messageService.addMessage(message);
+                ctx.json(mapper.writeValueAsString(addedMessage));
         }
         else{
             ctx.status(400);
         }
-
     }
 
     /**

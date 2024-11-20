@@ -43,4 +43,13 @@ public class AccountService {
         return accountDAO.getValidAccount(username);
     }
 
+    /**
+     * Looks for a valid account when loging in or registering, by searching the account_id.
+     * @param account_id Account's account_id, which is an int.
+     * @return Returns an Account, or null on failcases.
+     */
+    public Account getValidAccount(int account_id){
+        return accountDAO.getValidAccount(account_id);
+    }
+
 }
