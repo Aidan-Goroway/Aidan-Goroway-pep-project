@@ -43,7 +43,7 @@ public class SocialMediaController {
         app.post("/register", this::postNewUserHandler); //#1                               DONE!
         app.post("/login", this::postNewLoginHandler); //#2                                 DONE!
         app.post("/messages", this::postNewMessageHandler); //#3                            DONE!
-        app.get("/messages", this::getAllMessagesHandler); //#4
+        app.get("/messages", this::getAllMessagesHandler); //#4                             DONE!
         app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5
         app.delete("/messages/{message_id}", this::deleteMessageByIdHandler); //#6
         app.put("/messages/{message_id}", this::updateMessageByIdHandler); //#7
@@ -82,8 +82,8 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(ctx.body(), Account.class);
         
-        if (account.getUsername() != "" &&              // username not blank 
-            account.getPassword().length() >= 4 &&      // password 4+ chars long
+        if (account.getUsername() != ""             &&      // username not blank 
+            account.getPassword().length() >= 4     &&      // password 4+ chars long
             accountService.getValidAccount(account.getUsername()) == null){ //username not preexistent
                 Account postedAccount = accountService.addAccount(account);
                 ctx.json(mapper.writeValueAsString(postedAccount));
@@ -142,8 +142,8 @@ public class SocialMediaController {
         Message message = mapper.readValue(ctx.body(), Message.class);
 
         if (!message.getMessage_text().equals("") &&   // messege not blank
-            message.getMessage_text().length() < 256            // message less than 256 long
-            && !(accountService.getValidAccount(message.getPosted_by()) == null)){  // message from a real user
+            message.getMessage_text().length() < 256       &&   // message less than 256 long
+            !(accountService.getValidAccount(message.getPosted_by()) == null)){  // message from a real user
                 Message addedMessage = messageService.addMessage(message);
                 ctx.json(mapper.writeValueAsString(addedMessage));
         }
@@ -153,12 +153,12 @@ public class SocialMediaController {
     }
 
     /**
-     * HANDLER #4: Retreieve all messages
-     * 
-     * The response body should contain a JSON representation of a list containing all messages retrieved from the database. 
-     * It is expected for the list to simply be empty if there are no messages. The response status should always be 200, 
-     * which is the default.
-     */
+    * HANDLER #4: Retreieve all messages
+    * 
+    * The response body should contain a JSON representation of a list containing all messages retrieved from the database. 
+    * It is expected for the list to simply be empty if there are no messages. The response status should always be 200, 
+    * which is the default.
+    */
     private void getAllMessagesHandler(Context ctx){
         List<Message> messages = messageService.getAllMessages();
         ctx.json(messages);

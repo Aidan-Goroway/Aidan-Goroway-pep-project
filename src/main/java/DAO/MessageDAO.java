@@ -13,7 +13,7 @@ public class MessageDAO {
     
     /**
      * Get all messages, return in list.
-     * @return
+     * @return List object of Message type. Returns emptylist if there are no messages.
      */
     public List<Message> getAllMessages(){
         Connection connection = ConnectionUtil.getConnection();
@@ -26,8 +26,8 @@ public class MessageDAO {
                 Message message = new Message(
                     rs.getInt("message_id"), 
                     rs.getInt("posted_by"),
-                    rs.getString("password"),
-                    rs.getLong("message_text"));
+                    rs.getString("message_text"),
+                    rs.getLong("time_posted_epoch"));
                 messages.add(message);
             }
         }
