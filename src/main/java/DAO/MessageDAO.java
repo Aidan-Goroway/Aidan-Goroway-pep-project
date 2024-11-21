@@ -38,17 +38,19 @@ public class MessageDAO {
     }
 
     /**
-     * Insert message
+     * Insert a Message into the database.
+     * Will fail if message is blank, over 255 characters long, or is posted by a user that does not exist.
+     * Importantly, this message does not contain a message_id prior to insertion.
+     * @param message Message we are attempting to insert.
+     * @return The Message we have inserted, or null on SQL failures.
      */
     public Message insertMessage(Message message){
         Connection connection = ConnectionUtil.getConnection();
 
         try{
-            
             String sql = "INSERT INTO message (posted_by,message_text,time_posted_epoch) VALUES (?,?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-            // preparedStatement.setInt(1, message.getMessage_id());
             preparedStatement.setInt(1, message.getPosted_by());
             preparedStatement.setString(2, message.getMessage_text());
             preparedStatement.setLong(3, message.getTime_posted_epoch());
@@ -72,22 +74,23 @@ public class MessageDAO {
      * @param id
      * @return
      */
-    public Message getMessagebyId(int id){
+    public Message getMessagebyId(int account_id){
         Connection connection = ConnectionUtil.getConnection();
-        // List<Message> messages = new ArrayList<>();
+
         try {
             String sql = "SELECT * FROM message WHERE message_id = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
-            preparedStatement.setInt(1, id);
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, account_id);
+
             ResultSet rs = preparedStatement.executeQuery();
 
             while(rs.next()){
                 Message message = new Message(
                     rs.getInt("message_id"), 
                     rs.getInt("posted_by"),
-                    rs.getString("password"),
-                    rs.getLong("message_text"));
+                    rs.getString("message_text"),
+                    rs.getLong("time_posted_epoch"));
                 return message;
             }
         }
@@ -115,8 +118,8 @@ public class MessageDAO {
                 Message message = new Message(
                     rs.getInt("message_id"), 
                     rs.getInt("posted_by"),
-                    rs.getString("password"),
-                    rs.getLong("message_text"));
+                    rs.getString("message_text"),
+                    rs.getLong("time_posted_epoch"));
                 return message;
             }
         }

@@ -44,7 +44,7 @@ public class SocialMediaController {
         app.post("/login", this::postNewLoginHandler); //#2                                 DONE!
         app.post("/messages", this::postNewMessageHandler); //#3                            DONE!
         app.get("/messages", this::getAllMessagesHandler); //#4                             DONE!
-        app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5
+        app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5                DONE!
         app.delete("/messages/{message_id}", this::deleteMessageByIdHandler); //#6
         app.put("/messages/{message_id}", this::updateMessageByIdHandler); //#7
         app.get("/accounts/{account_id}/messages", this::getAllMessagesByUserHandler); //#8 DONE!
@@ -172,12 +172,9 @@ public class SocialMediaController {
      * The response status should always be 200, which is the default.
      */
     private void getMessageByIdHandler(Context ctx) throws JsonProcessingException{
-
-        ObjectMapper mapper = new ObjectMapper();
-        Message message = mapper.readValue(ctx.body(), Message.class);
-        Message addedMessage = messageService.addMessage(message);
-
-        ctx.json(messageService.getMessagebyId(addedMessage.getMessage_id()));
+        if (messageService.getMessagebyId(ctx.pathParam("message_id")) != null){
+            ctx.json(messageService.getMessagebyId(ctx.pathParam("message_id")));
+        } // Does not assign a json if null
     }
 
     /**
@@ -236,6 +233,8 @@ public class SocialMediaController {
     }
 
     /**
+     * Handler #8
+     * 
      * The response body should contain a JSON representation of a list containing all messages posted by a particular user,
      * which is retrieved from the database. It is expected for the list to simply be empty if there are no messages. 
      * The response status should always be 200, which is the default.

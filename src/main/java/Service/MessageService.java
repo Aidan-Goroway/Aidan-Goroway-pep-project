@@ -26,9 +26,9 @@ public class MessageService {
     }
 
     /**
-     * TODO
-     * @param message
-     * @return
+     * Insert a message into the database.
+     * @param message The message we are attempting to insert.
+     * @return The message we have inserted. May return null on SQL failure.
      */
     public Message addMessage(Message message){
         return messageDAO.insertMessage(message);
@@ -36,24 +36,19 @@ public class MessageService {
 
     /**
      * Get all Messages in the database.
-     * @return List of all messages.
+     * @return List of all messages. May return null if no messages exist.
      */
     public List<Message> getAllMessages(){
         return messageDAO.getAllMessages();
     }
 
     /**
-     * 
-     * @param message
-     * @return
+     * Quereys for a Message in the database by its message_id.
+     * @param message_id The message_id we are quereying by.
+     * @return The Message we have attempted to query. May return null if no message by the message_id exists.
      */
-    public Message getMessagebyId(int message_id){
-        if (messageDAO.getMessagebyId(message_id) != null){
-            return messageDAO.getMessagebyId(message_id);
-        }
-        else{
-            return null;
-        }
+    public Message getMessagebyId(String message_id){
+        return messageDAO.getMessagebyId(Integer.parseInt(message_id));
     }
 
     /**
