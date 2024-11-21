@@ -56,13 +56,14 @@ public class MessageService {
      * @param message
      * @return
      */
-    public Message deleteMessageById(int message_id){
-        if (messageDAO.getMessagebyId(message_id) != null){
-            return messageDAO.getMessagebyId(message_id);
-        }
-        else{
-            return null;
-        }
+    public Message deleteMessageById(String message_id){
+        // if (messageDAO.getMessagebyId(message_id) != null){
+        //     return messageDAO.getMessagebyId(message_id);
+        // }
+        // else{
+        //     return null;
+        // }
+        return messageDAO.deleteMessageById(Integer.parseInt(message_id));
     }
 
     public Message updateMessageById(int message_id, Message message){

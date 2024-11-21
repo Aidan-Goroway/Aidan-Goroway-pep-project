@@ -104,17 +104,19 @@ public class MessageDAO {
      * DELETE message by ID
      * @param id
      */
-    public Message deleteMessageById(int id){
+    public Message deleteMessageById(int message_id){
         Connection connection = ConnectionUtil.getConnection();
         
         try {
-            String sql = "DELETE * FROM message WHERE message_id = ?";
+            String sql = "DELETE FROM message WHERE message_id = ?";
+
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, message_id);
+            
+            preparedStatement.executeUpdate();
+            ResultSet rs = preparedStatement.getGeneratedKeys();
 
-            preparedStatement.setInt(1, id);
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while(rs.next()){
+            if(rs.next()){
                 Message message = new Message(
                     rs.getInt("message_id"), 
                     rs.getInt("posted_by"),
@@ -122,6 +124,13 @@ public class MessageDAO {
                     rs.getLong("time_posted_epoch"));
                 return message;
             }
+            // if(rs.next()){
+            //     return new Message(
+            //         message.getMessage_id(),
+            //         message.getPosted_by(),
+            //         message.getMessage_text(),
+            //         message.getTime_posted_epoch());
+            // }
         }
         catch (SQLException e){
             System.out.println(e.getMessage());

@@ -165,12 +165,12 @@ public class SocialMediaController {
     }
 
     /**
-     * HANDLER #5: Get message by id
-     * 
-     * The response body should contain a JSON representation of the message identified by the message_id. 
-     * It is expected for the response body to simply be empty if there is no such message. 
-     * The response status should always be 200, which is the default.
-     */
+    * HANDLER #5: Get message by id
+    * 
+    * The response body should contain a JSON representation of the message identified by the message_id. 
+    * It is expected for the response body to simply be empty if there is no such message. 
+    * The response status should always be 200, which is the default.
+    */
     private void getMessageByIdHandler(Context ctx) throws JsonProcessingException{
         if (messageService.getMessagebyId(ctx.pathParam("message_id")) != null){
             ctx.json(messageService.getMessagebyId(ctx.pathParam("message_id")));
@@ -178,21 +178,26 @@ public class SocialMediaController {
     }
 
     /**
-     * - The deletion of an existing message should remove an existing message from the database. 
-     *  If the message existed, the response body should contain the now-deleted message. 
-     *  The response status should be 200, which is the default.
-     * 
-        If the message did not exist, the response status should be 200, but the response body should be empty. 
-        This is because the DELETE verb is intended to be idempotent, ie, 
-        multiple calls to the DELETE endpoint should respond with the same type of response.
-     */
+    * HANDLER #6: Delete message by id
+    * The deletion of an existing message should remove an existing message from the database. 
+    * If the message existed, the response body should contain the now-deleted message. 
+    * The response status should be 200, which is the default.
+
+    * If the message did not exist, the response status should be 200, but the response body should be empty. 
+    * This is because the DELETE verb is intended to be idempotent, ie, 
+    * multiple calls to the DELETE endpoint should respond with the same type of response.
+    */
     private void deleteMessageByIdHandler(Context ctx) throws JsonProcessingException{
 
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
-        Message addedMessage = messageService.addMessage(message);
-
-        ctx.json(messageService.deleteMessageById(addedMessage.getMessage_id()));
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        // Message deletedMessage = messageService.deleteMessageById(message_id, message);
+        // Message addedMessage = messageService.addMessage(message);
+        // ctx.json(messageService.deleteMessageById(addedMessage.getMessage_id()));
+        if (messageService.deleteMessageById(ctx.pathParam("message_id")) != null){
+            ctx.json(messageService.deleteMessageById(ctx.pathParam("message_id")));
+        }
     }
 
     /**
