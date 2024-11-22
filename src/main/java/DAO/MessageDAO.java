@@ -102,7 +102,7 @@ public class MessageDAO {
 
     /**
      * DELETE message by ID
-     * @param id
+     * @param message_id the ID of the message we are deleting. 
      */
     public Message deleteMessageById(int message_id){
         Connection connection = ConnectionUtil.getConnection();
