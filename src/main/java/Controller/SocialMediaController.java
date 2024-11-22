@@ -45,8 +45,8 @@ public class SocialMediaController {
         app.post("/messages", this::postNewMessageHandler); //#3                            DONE!
         app.get("/messages", this::getAllMessagesHandler); //#4                             DONE!
         app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5                DONE!
-        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler); //#6
-        app.patch("/messages/{message_id}", this::updateMessageByIdHandler); //#7
+        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler); //#6          DONE!
+        app.patch("/messages/{message_id}", this::updateMessageByIdHandler); //#7           DONE!
         app.get("/accounts/{account_id}/messages", this::getAllMessagesByUserHandler); //#8 DONE!
 
         return app;
@@ -190,48 +190,41 @@ public class SocialMediaController {
     private void deleteMessageByIdHandler(Context ctx) throws JsonProcessingException{
 
         ObjectMapper mapper = new ObjectMapper();
-        // Message message = mapper.readValue(ctx.body(), Message.class);
         int message_id = Integer.parseInt(ctx.pathParam("message_id"));
         Message deletedMessage = messageService.deleteMessageById(message_id);
-        // Message addedMessage = messageService.addMessage(message);
-        // ctx.json(messageService.deleteMessageById(addedMessage.getMessage_id()));
+        
         if (deletedMessage != null){
             ctx.json(mapper.writeValueAsString(deletedMessage));
         }
-        else{
+        else{ // Despite being status 200 being the default, it is not actually assigned automatically
             ctx.status(200);
         }
     }
 
     /**
-     * - The update of a message should be successful if and only if: 
-     *      the message id already exists 
-     *      and the new message_text is not blank
-     *      and is not over 255 characters. 
-     *  If the update is successful, the response body should contain the full
-     *  updated message (including message_id, posted_by, message_text, and time_posted_epoch), and the response status should
-     *  be 200, which is the default. The message existing on the database should have the updated message_text.
-        - If the update of the message is not successful for any reason, the response status should be 400. (Client error)
+    * HANDLER #7
+    * The update of a message should be successful if and only if: 
+    *   - the message id already exists 
+    *   - and the new message_text is not blank
+    *   - and is not over 255 characters. 
+    * If the update is successful, the response body should contain the full
+    * updated message (including message_id, posted_by, message_text, and time_posted_epoch), 
+    * and the response status should be 200, which is the default. 
+    * The message existing on the database should have the updated message_text.
 
-     * @param ctx
-     * @throws JsonProcessingException
-     */
+    * If the update of the message is not successful for any reason, the response status should be 400. (Client error)
+
+    * @param ctx
+    * @throws JsonProcessingException
+    */
     private void updateMessageByIdHandler(Context ctx) throws JsonProcessingException{
 
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
-
         int message_id = Integer.parseInt(ctx.pathParam("message_id"));
-        // String message_text = ctx.pathParam("message_text");
-
         Message updatedMessage = messageService.updateMessageById(message_id, message);
 
-        if (
-            updatedMessage != null
-            // message.getMessage_id() == updatedMessage.getMessage_id() &&
-            // updatedMessage.getMessage_text() != "" &&
-            // updatedMessage.getMessage_text().length() < 256
-        ){
+        if (updatedMessage != null){ //Specifications are made in the service class for this handler 
             ctx.json(mapper.writeValueAsString(updatedMessage));
         }
         else{

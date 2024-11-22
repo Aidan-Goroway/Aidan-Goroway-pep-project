@@ -52,9 +52,9 @@ public class MessageService {
     }
 
     /**
-     * 
-     * @param message
-     * @return
+     * Deletes a message by its message_id.
+     * @param message_id The id of the message we are trying to delete.
+     * @return Returns the message we have deleted, or null if no message by the id exists.
      */
     public Message deleteMessageById(int message_id){
         Message message = messageDAO.getMessagebyId(message_id);
@@ -64,16 +64,23 @@ public class MessageService {
         else{
             return null;
         }
-        // return messageDAO.deleteMessageById(message_id);
     }
 
+    /**
+     * Updates a message by its id.
+     * Unlike most of the other handlers, the filtering process for what
+     * messages can be updated occurs here, rather than in the Controller.
+     * @param message_id 
+     * @param message Initial message we are patching
+     * @return
+     */
     public Message updateMessageById(int message_id, Message message){
-        Message messageTwo = messageDAO.getMessagebyId(message_id);
-        if (messageTwo != null
+        Message messageCopy = messageDAO.getMessagebyId(message_id);
+        if (messageCopy != null //a "copy" of the message, taken from its id
             && !message.getMessage_text().isBlank()
             && message.getMessage_text().length() < 256
         ){
-            messageDAO.updateMessageById(message_id, message);
+            messageDAO.updateMessageById(message_id, message); //update the message, but dont return it
             return messageDAO.getMessagebyId(message_id);
         }
         else{
