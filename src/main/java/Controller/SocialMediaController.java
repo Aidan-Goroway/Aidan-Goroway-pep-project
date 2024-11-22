@@ -46,7 +46,7 @@ public class SocialMediaController {
         app.get("/messages", this::getAllMessagesHandler); //#4                             DONE!
         app.get("/messages/{message_id}", this::getMessageByIdHandler); //#5                DONE!
         app.delete("/messages/{message_id}", this::deleteMessageByIdHandler); //#6
-        app.put("/messages/{message_id}", this::updateMessageByIdHandler); //#7
+        app.patch("/messages/{message_id}", this::updateMessageByIdHandler); //#7
         app.get("/accounts/{account_id}/messages", this::getAllMessagesByUserHandler); //#8 DONE!
 
         return app;
@@ -190,13 +190,16 @@ public class SocialMediaController {
     private void deleteMessageByIdHandler(Context ctx) throws JsonProcessingException{
 
         ObjectMapper mapper = new ObjectMapper();
-        Message message = mapper.readValue(ctx.body(), Message.class);
+        // Message message = mapper.readValue(ctx.body(), Message.class);
         int message_id = Integer.parseInt(ctx.pathParam("message_id"));
-        // Message deletedMessage = messageService.deleteMessageById(message_id, message);
+        Message deletedMessage = messageService.deleteMessageById(message_id);
         // Message addedMessage = messageService.addMessage(message);
         // ctx.json(messageService.deleteMessageById(addedMessage.getMessage_id()));
-        if (messageService.deleteMessageById(ctx.pathParam("message_id")) != null){
-            ctx.json(messageService.deleteMessageById(ctx.pathParam("message_id")));
+        if (deletedMessage != null){
+            ctx.json(mapper.writeValueAsString(deletedMessage));
+        }
+        else{
+            ctx.status(200);
         }
     }
 
@@ -224,10 +227,10 @@ public class SocialMediaController {
         Message updatedMessage = messageService.updateMessageById(message_id, message);
 
         if (
-            // updatedMessage.getMessage_id() != null,
-            message.getMessage_id() == updatedMessage.getMessage_id() &&
-            updatedMessage.getMessage_text() != "" &&
-            updatedMessage.getMessage_text().length() < 256
+            updatedMessage != null
+            // message.getMessage_id() == updatedMessage.getMessage_id() &&
+            // updatedMessage.getMessage_text() != "" &&
+            // updatedMessage.getMessage_text().length() < 256
         ){
             ctx.json(mapper.writeValueAsString(updatedMessage));
         }
